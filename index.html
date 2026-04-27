@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FLORA FAUNA — Day 03 / Mutation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1d3fa3;
+    --blue-deep:#162f7c;
+    --cream:#f3eee4;
+    --line: rgba(243, 238, 228, 0.85);
+    --line-soft: rgba(243, 238, 228, 0.40);
+    --hair: rgba(243, 238, 228, 0.18);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html, body{
+    height:100%;
+    width:100%;
+    background:var(--blue);
+    color:var(--cream);
+    font-family:'Poppins', 'Helvetica Neue', Arial, sans-serif;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  body{
+    height:100vh;
+    height:100dvh;
+    width:100vw;
+    position:relative;
+  }
+
+  /* ============== FLUID VIDEO BACKGROUND (FULL VIEWPORT) ============== */
+  .bg-video{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    z-index:0;
+    overflow:hidden;
+    background:var(--blue);
+  }
+  .bg-video video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    filter: saturate(1.12) contrast(1.06) brightness(1.02);
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* ============== MINIMAL LANDING — centered button ============== */
+  .landing{
+    position:fixed;
+    inset:0;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .landing.is-hidden{ opacity:0; pointer-events:none; transition: opacity .4s ease; }
+
+  .enter-cta{
+    pointer-events:auto;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding: 20px 52px;
+    border:1px solid var(--line);
+    background: rgba(29, 63, 163, 0.22);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    color:var(--cream);
+    text-transform:uppercase;
+    letter-spacing: 0.42em;
+    font-family:'Poppins', sans-serif;
+    font-weight:400;
+    font-size: clamp(13px, 1.05vw, 16px);
+    cursor:pointer;
+    transition: all .5s ease;
+    position:relative;
+  }
+  .enter-cta:hover{
+    background: rgba(243,238,228,0.10);
+    letter-spacing: 0.52em;
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+  .enter-cta-label{
+    position:relative;
+    display:inline-block;
+    padding-left: 4px;
+  }
+
+  /* ============== POSTER FRAME OVERLAY (unused on landing now) ============== */
+  .poster{
+    position:fixed;
+    inset:0;
+    z-index:5;
+    display:grid;
+    grid-template-rows: minmax(120px, 16vh) 1fr minmax(120px, 16vh);
+    grid-template-columns: 1fr;
+    padding:18px;
+    gap:12px;
+    pointer-events:none;
+  }
+  .poster > *{ pointer-events:auto; }
+
+  .frame{
+    border:1px solid var(--line);
+    background:transparent;
+    position:relative;
+  }
+
+  /* TOP BAR — title + meta */
+  .top{
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap:12px;
+  }
+
+  /* === Type fix: flex column with proper internal padding so no line cuts through letters === */
+  .title-cell{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding: 0 28px;
+    overflow:hidden;
+  }
+  .title-cell .stack{
+    display:flex;
+    flex-direction:column;
+    gap: 0.18em;
+  }
+  .title-cell .word{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:-0.012em;
+    color:var(--cream);
+    font-size: clamp(42px, 6.8vw, 104px);
+    line-height: 1;
+  }
+  .title-cell .word.flora{
+    margin-bottom: 0;
+  }
+  .title-cell .word.fauna em{
+    font-style: italic;
+    font-family:'Poppins', sans-serif;
+    font-weight:300;
+    font-size: 0.92em;
+    letter-spacing:-0.01em;
+    color:var(--cream);
+    margin-left: 0.04em;
+  }
+  .title-cell .word .amp{
+    font-family:'Poppins', sans-serif;
+    font-style:italic;
+    font-weight:300;
+    font-size: 0.78em;
+    margin: 0 0.06em 0 0.06em;
+    opacity:0.9;
+  }
+
+  .meta-cell{
+    display:grid;
+    grid-template-columns: 96px 1fr;
+    align-items:center;
+    padding: 14px 22px;
+    gap:18px;
+  }
+  .dish{
+    width:88px;
+    height:88px;
+    border-radius:50%;
+    overflow:hidden;
+    background:var(--blue-deep);
+    border:1px solid var(--line-soft);
+    flex-shrink:0;
+    position:relative;
+  }
+  .dish img{
+    width:100%; height:100%; object-fit:cover;
+    mix-blend-mode:screen;
+    filter: hue-rotate(-8deg) saturate(1.2) contrast(1.04);
+  }
+  .meta-text{
+    font-family:'Poppins', sans-serif;
+    font-weight:400;
+    font-size: clamp(13px, 1.05vw, 17px);
+    line-height:1.18;
+    color:var(--cream);
+  }
+  .meta-text em{
+    font-family:'Poppins', sans-serif;
+    font-style: italic;
+    font-weight:300;
+  }
+  .meta-text .nyc{
+    display:block;
+    margin-top:10px;
+    font-weight:600;
+    letter-spacing:0.10em;
+    font-size: 1.05em;
+  }
+
+  /* MIDDLE — HUGE DAY 03 / MUTATION hero */
+  .middle{
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .middle-grid{
+    flex:1 1 auto;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    padding: clamp(24px, 4vw, 64px);
+    padding-right: clamp(140px, 18vw, 260px); /* keep clear of enter button */
+  }
+
+  .hero-type{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+    gap: 0.12em;
+    user-select:none;
+    position:relative;
+  }
+
+  .day-row{
+    display:flex;
+    align-items:flex-end;
+    gap: clamp(18px, 2.4vw, 38px);
+    line-height:0.82;
+    flex-wrap:nowrap;
+  }
+  .day-word{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    font-size: clamp(110px, 20vw, 320px);
+    letter-spacing:-0.02em;
+    color: var(--cream);
+    line-height:0.82;
+  }
+  .day-num{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: clamp(110px, 20vw, 320px);
+    letter-spacing:-0.02em;
+    line-height:0.82;
+    color: var(--cream);
+  }
+
+  .mutation-row{
+    margin-top: clamp(8px, 1.2vw, 18px);
+  }
+  .mutation{
+    font-family:'Poppins', sans-serif;
+    font-style:italic;
+    font-weight:300;
+    font-size: clamp(40px, 7.5vw, 120px);
+    line-height:0.95;
+    letter-spacing:-0.005em;
+    color: var(--cream);
+  }
+
+  /* enter button — floating bottom-right of middle */
+  .enter-btn{
+    position:absolute;
+    right: clamp(20px, 3vw, 48px);
+    top: clamp(20px, 3vw, 48px);
+    display:inline-flex;
+    align-items:center;
+    gap: 12px;
+    padding: 12px 22px;
+    border:1px solid var(--line);
+    background: rgba(29, 63, 163, 0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    color:var(--cream);
+    text-transform:uppercase;
+    letter-spacing:0.28em;
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: clamp(11px, 0.95vw, 14px);
+    cursor:pointer;
+    transition: all .35s ease;
+    z-index:6;
+  }
+  .enter-btn em{
+    font-family:'Poppins', sans-serif;
+    font-style:italic;
+    font-weight:300;
+    text-transform:none;
+    letter-spacing:0;
+    margin-right: 4px;
+    opacity:0.9;
+  }
+  .enter-btn:hover{
+    background: rgba(243,238,228,0.10);
+    letter-spacing:0.32em;
+  }
+  .enter-btn .pulse{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--cream);
+    box-shadow:0 0 0 0 rgba(243,238,228,0.7);
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(243,238,228,0.6);}
+    70%{ box-shadow:0 0 0 12px rgba(243,238,228,0);}
+    100%{ box-shadow:0 0 0 0 rgba(243,238,228,0);}
+  }
+
+  /* BOTTOM BAR */
+  .bottom{
+    display:grid;
+    grid-template-columns: 240px 1fr 130px;
+    gap:12px;
+  }
+  .dishes-row{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:14px;
+    padding: 14px 22px;
+  }
+  .dishes-row .dish{ width:74px; height:74px; }
+  .dishes-row .dish.pink img{ filter: hue-rotate(120deg) saturate(1.4); }
+  .dishes-row .dish.violet img{ filter: hue-rotate(60deg) saturate(1.2); }
+
+  .date-cell{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: clamp(10px, 1.5vw, 24px);
+    padding: 0 24px;
+  }
+  .date-cell .d{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: clamp(48px, 7.5vw, 110px);
+    letter-spacing:-0.01em;
+    line-height:1;
+    color:var(--cream);
+  }
+  .date-cell .d em{
+    font-family:'Poppins', sans-serif;
+    font-style:italic;
+    font-weight:300;
+    font-size:0.7em;
+    opacity:0.85;
+    margin: 0 0.02em;
+  }
+  .date-cell .nyc-tag{
+    font-family:'Poppins', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.32em;
+    font-weight:500;
+    font-size: clamp(11px, 0.9vw, 14px);
+    opacity:0.8;
+    border-left:1px solid var(--hair);
+    padding-left: clamp(10px, 1.5vw, 22px);
+    line-height:1.4;
+  }
+  .corner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .corner .dish{ width:88px; height:88px; }
+
+  /* ============== EVENTS GRID — FULL VIEWPORT ============== */
+  .events{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    z-index:20;
+    display:none;
+    flex-direction:column;
+    padding:18px;
+    background: rgba(22, 47, 124, 0.62);
+    backdrop-filter: blur(3px) saturate(1.1);
+    -webkit-backdrop-filter: blur(3px) saturate(1.1);
+  }
+  .events.is-open{ display:flex; animation: fadeIn .55s ease both; }
+  @keyframes fadeIn{
+    from{ opacity:0; transform:scale(1.01);}
+    to{ opacity:1; transform:scale(1);}
+  }
+
+  .events-frame{
+    flex:1 1 auto;
+    border:1px solid var(--line);
+    display:grid;
+    grid-template-rows: auto 1fr auto;
+    overflow:hidden;
+  }
+
+  /* poster-style header — 3 cells: title | marker | info */
+  .ev-header{
+    display:grid;
+    grid-template-columns: 2fr 96px 1.2fr;
+    border-bottom:1px solid var(--line);
+  }
+  .ev-header > div{
+    padding:18px 26px;
+    border-right:1px solid var(--line);
+    display:flex;
+    align-items:center;
+  }
+  .ev-header > div:last-child{ border-right:none; }
+  .ev-header .marker-cell{
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .ev-header .marker-cell .marker{
+    position:static;
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background: var(--cyan);
+    border:1px solid var(--cyan);
+  }
+  .ev-title{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    font-size: clamp(22px, 2.2vw, 36px);
+    letter-spacing:-0.01em;
+    line-height:0.95;
+  }
+  .ev-day{
+    font-family:'Poppins', sans-serif;
+    font-weight:400;
+    text-transform:uppercase;
+    letter-spacing:0.32em;
+    font-size: clamp(11px, 0.9vw, 13px);
+    display:flex;
+    gap:14px;
+    align-items:baseline;
+  }
+  .ev-day b{ font-weight:600; letter-spacing:0.04em; font-size:1.1em;}
+  .ev-day em{
+    font-style:normal;
+    font-weight:300;
+    margin-left:0;
+    opacity:0.7;
+  }
+  .ev-date{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: clamp(20px, 2vw, 32px);
+    letter-spacing:-0.01em;
+  }
+
+  /* status row */
+  .status{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom:1px solid var(--line);
+  }
+  .status > div{
+    padding:14px 24px;
+    border-right:1px solid var(--line);
+    font-family:'Poppins', sans-serif;
+    text-transform:uppercase;
+    font-size: clamp(10px, 0.75vw, 12px);
+    letter-spacing:0.32em;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-weight:300;
+  }
+  .status > div:last-child{ border-right:none; }
+  .status .k{ opacity:0.55; }
+  .status .v{ font-weight:500; letter-spacing:0.08em; font-size: clamp(12px, 0.95vw, 15px); }
+  .status .v.alert{ color:#ffd9d9; }
+
+  /* event grid (scrollable area) */
+  .grid-wrap{
+    overflow:auto;
+    scrollbar-width:thin;
+    scrollbar-color: rgba(243,238,228,0.4) transparent;
+  }
+  .grid-wrap::-webkit-scrollbar{ width:8px; }
+  .grid-wrap::-webkit-scrollbar-thumb{ background:rgba(243,238,228,0.35); }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(170px, 1fr);
+  }
+  .cell{
+    border:1px solid var(--line);
+    margin: -1px 0 0 -1px; /* overlap shared edges so the lines stay 1px */
+    padding:18px 22px 20px 22px;
+    display:grid;
+    grid-template-rows: auto 1fr auto;
+    gap:8px;
+    position:relative;
+    transition: background .3s ease;
+    overflow:hidden;
+  }
+  .cell:hover{ background: rgba(243,238,228,0.06); z-index:1; }
+
+  /* dish-cell — empty showcase cell with inscribed oval touching all 4 sides */
+  .cell.dish-cell{ overflow:hidden; }
+  .cell.dish-cell::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius: 50%;
+    border:1px solid var(--line);
+    pointer-events:none;
+  }
+  .cell.dish-cell .marker{ display:none; }
+  /* feature cells — span like the poster's hero panels */
+  .cell.feature{ grid-column: span 2; }
+  .cell.wide{ grid-column: span 3; }
+  .cell.full{ grid-column: 1 / -1; }
+
+  .cell .time{
+    font-family:'Poppins', sans-serif;
+    font-weight:500;
+    font-size: clamp(13px, 0.9vw, 15px);
+    letter-spacing: 0.04em;
+    color:var(--cream);
+    opacity:0.85;
+  }
+  .cell .label{
+    font-family:'Poppins', sans-serif;
+    font-weight:300;
+    font-size: clamp(10px, 0.75vw, 11px);
+    text-transform:uppercase;
+    letter-spacing: 0.32em;
+    opacity:0.7;
+    margin-top: 2px;
+  }
+  .cell .body{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:6px;
+  }
+  .cell h3{
+    font-family:'Poppins', sans-serif;
+    font-weight:500;
+    font-size: clamp(17px, 1.45vw, 24px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    text-transform:none;
+  }
+  .cell .speaker{
+    font-family:'Poppins', sans-serif;
+    font-weight:400;
+    font-size: clamp(13px, 0.95vw, 15px);
+    letter-spacing:0;
+    opacity:0.92;
+    margin-top: 2px;
+  }
+  .cell p{
+    font-family:'Poppins', sans-serif;
+    font-weight:300;
+    font-size: clamp(11px, 0.78vw, 13px);
+    line-height:1.5;
+    opacity:0.78;
+  }
+  .cell ul{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    font-family:'Poppins', sans-serif;
+    font-weight:400;
+    font-size: clamp(12px, 0.85vw, 14px);
+    opacity:0.88;
+    margin-top: 4px;
+  }
+  .cell ul li::before{
+    content:"+ ";
+    opacity:0.55;
+  }
+  /* circle markers — colors pulled from the fluid animation palette */
+  :root{
+    --aqua:    #c8e0e4;  /* light cyan haze */
+    --cyan:    #9ec9d9;  /* mid cyan */
+    --teal:    #7ab2c4;  /* deeper teal */
+    --sky:     #b6d4e8;  /* soft pale sky */
+    --foam:    #e6f0ee;  /* cream-tinted aqua */
+    --pink:    #e9c4cf;  /* desaturated dusty pink (poster accent) */
+    --violet:  #b9b1d4;  /* muted violet (poster accent) */
+  }
+  .cell .marker{
+    position:absolute;
+    top:16px;
+    right:16px;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background: var(--aqua);
+    border:1px solid var(--aqua);
+  }
+  .cell .marker.outline{ background: transparent; border-color: var(--cream);}
+  .cell .marker.aqua{   background: var(--aqua);   border-color: var(--aqua);}
+  .cell .marker.cyan{   background: var(--cyan);   border-color: var(--cyan);}
+  .cell .marker.teal{   background: var(--teal);   border-color: var(--teal);}
+  .cell .marker.sky{    background: var(--sky);    border-color: var(--sky);}
+  .cell .marker.foam{   background: var(--foam);   border-color: var(--foam);}
+  .cell .marker.cream{  background: var(--cream);  border-color: var(--cream);}
+  .cell .marker.pink{   background: var(--pink);   border-color: var(--pink);}
+  .cell .marker.violet{ background: var(--violet); border-color: var(--violet);}
+  .cell .marker.ring{
+    background: transparent;
+    border:2px solid var(--aqua);
+  }
+  .cell .marker.half{
+    background: linear-gradient(180deg, var(--aqua) 0 50%, transparent 50% 100%);
+    border:1px solid var(--aqua);
+  }
+  .cell .marker.split{
+    background: linear-gradient(90deg, var(--cyan) 0 50%, transparent 50% 100%);
+    border:1px solid var(--cyan);
+  }
+  /* hero-scale circle for feature cells, anchored in cell, never breaks out */
+  .cell.feature .marker.lg,
+  .cell.full .marker.lg{
+    width: clamp(56px, 5vw, 84px);
+    height: clamp(56px, 5vw, 84px);
+    top: 18px;
+    right: 18px;
+  }
+  .cell.full .marker.xl{
+    width: clamp(80px, 8vw, 130px);
+    height: clamp(80px, 8vw, 130px);
+    top: 18px;
+    right: 18px;
+  }
+
+  /* poster-style footer — alternating marker / info cells */
+  .ev-footer{
+    display:grid;
+    grid-template-columns: 80px 1fr 80px 1fr;
+    border-top:1px solid var(--line);
+  }
+  .ev-footer > div{
+    padding:14px 24px;
+    border-right:1px solid var(--line);
+    font-family:'Poppins', sans-serif;
+    text-transform:uppercase;
+    font-size: clamp(10px, 0.75vw, 12px);
+    letter-spacing:0.32em;
+    display:flex;
+    gap:14px;
+    align-items:center;
+    font-weight:300;
+    min-height: 56px;
+  }
+  .ev-footer > div:last-child{ border-right:none; }
+  .ev-footer .k{ opacity:0.55; }
+  .ev-footer .v{ font-weight:500; letter-spacing:0.08em; }
+  .ev-footer .marker-cell{
+    padding:0;
+    justify-content:center;
+  }
+  .ev-footer .marker-cell .marker{
+    position:static;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background: var(--aqua);
+    border:1px solid var(--aqua);
+  }
+  .ev-footer .marker-cell .marker.outline{
+    background: transparent;
+    border:1px solid var(--cream);
+  }
+  .ev-footer .marker-cell .marker.teal{
+    background: var(--teal);
+    border-color: var(--teal);
+  }
+  .ev-footer .info-cell{
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:4px;
+  }
+
+  /* close button */
+  .close{
+    position:absolute;
+    top:32px;
+    right:32px;
+    z-index:30;
+    width:46px; height:46px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--cream);
+    cursor:pointer;
+    font-size:18px;
+    font-family:'Poppins', sans-serif;
+    font-weight:300;
+    transition: all .3s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .close:hover{ background: rgba(243,238,228,0.12); }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px){
+    .top{ grid-template-columns: 1fr 260px;}
+    .bottom{ grid-template-columns: 200px 1fr 100px;}
+  }
+  @media (max-width: 900px){
+    .poster{ grid-template-rows: minmax(110px,14vh) 1fr minmax(110px,14vh); padding:12px; gap:8px;}
+    .top{ grid-template-columns: 1fr 200px;}
+    .meta-cell{ grid-template-columns: 64px 1fr; padding:10px 14px; gap:12px;}
+    .dish{ width:60px; height:60px; }
+    .meta-cell .dish{ width:60px; height:60px;}
+    .bottom{ grid-template-columns: 1fr 1fr;}
+    .corner{ display:none;}
+    .dishes-row .dish{ width:54px; height:54px;}
+    .grid{ grid-template-columns: repeat(2, 1fr);}
+    .cell.feature, .cell.wide, .cell.full{ grid-column: span 2;}
+    .ev-header{ grid-template-columns: 1fr 64px 1fr;}
+    .ev-header > div{ padding: 14px 18px;}
+    .ev-header .marker-cell .marker{ width:24px; height:24px;}
+    .status{ grid-template-columns: repeat(2, 1fr);}
+    .status > div:nth-child(2){ border-right:none;}
+    .ev-footer{ grid-template-columns: 56px 1fr 56px 1fr;}
+    .ev-footer .marker-cell .marker{ width:18px; height:18px;}
+    .close{ top:18px; right:18px; width:40px; height:40px;}
+    .day-word, .day-num{ font-size: clamp(86px, 22vw, 200px);}
+    .mutation{ font-size: clamp(36px, 10vw, 96px);}
+    .enter-btn{ padding: 10px 16px; }
+    .middle-grid{ padding-right: clamp(120px, 22vw, 200px);}
+  }
+  @media (max-width: 560px){
+    .grid{ grid-template-columns: 1fr;}
+    .cell.feature, .cell.wide, .cell.full{ grid-column: span 1;}
+    .top{ grid-template-columns: 1fr;}
+    .meta-cell{ display:none;}
+    .poster{ grid-template-rows: minmax(110px,16vh) 1fr minmax(96px,14vh); }
+    .day-word, .day-num{ font-size: clamp(70px, 24vw, 140px);}
+    .mutation{ font-size: clamp(30px, 11vw, 72px);}
+    .middle-grid{ padding: 22px; padding-top: 70px; }
+    .enter-btn{ top: 14px; right: 14px; }
+    .date-cell .nyc-tag{ display:none;}
+    .ev-title{ font-size: 22px;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- FLUID VIDEO BACKGROUND -->
+  <div class="bg-video" aria-hidden="true">
+    <video autoplay muted loop playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny" controlslist="nodownload nofullscreen">
+      <source src="fluid-motion-hd.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- LANDING — just a centered button on top of the video -->
+  <div class="landing" id="landing">
+    <button class="enter-cta" id="enterBtn" aria-label="Open events schedule">
+      <span class="enter-cta-label">Enter</span>
+    </button>
+  </div>
+
+  <!-- FULL VIEWPORT EVENTS GRID -->
+  <section class="events" id="events" aria-hidden="true">
+    <button class="close" id="closeBtn" aria-label="Close events">×</button>
+    <div class="events-frame">
+      <header class="ev-header">
+        <div class="ev-title">Flora Fauna</div>
+        <div class="marker-cell"><span class="marker"></span></div>
+        <div class="ev-day"><b>DAY 03</b><em>mutation · 7.9.26 — NYC</em></div>
+      </header>
+
+      <div class="grid-wrap">
+        <div class="grid">
+
+          <article class="cell">
+            <span class="marker aqua"></span>
+            <div class="time">08:30 — 09:15</div>
+            <div class="body">
+              <h3>Arrival + Environmental Calibration</h3>
+              <p>Participants enter through a filtered threshold. Devices synchronize with local microbial data streams.</p>
+            </div>
+            <div class="label">Threshold</div>
+          </article>
+
+          <article class="cell feature">
+            <span class="marker lg cyan"></span>
+            <div class="time">09:15 — 10:15</div>
+            <div class="body">
+              <h3>Adaptive Interfaces: When Systems Refuse Stability</h3>
+              <div class="speaker">Dr. Aiko Tanaka</div>
+              <p>How biological mutation challenges static design systems and introduces continuous transformation as a core logic.</p>
+            </div>
+            <div class="label">Keynote</div>
+          </article>
+
+          <article class="cell">
+            <span class="marker sky"></span>
+            <div class="time">10:15 — 10:45</div>
+            <div class="body">
+              <h3>Real-time Microbial Visualization</h3>
+              <p>Live scan of microbial activity. Projected typographic clusters respond to audience movement.</p>
+            </div>
+            <div class="label">Live Scan</div>
+          </article>
+
+          <article class="cell feature">
+            <span class="marker lg teal"></span>
+            <div class="time">10:45 — 11:30</div>
+            <div class="body">
+              <h3>Error as Evolution</h3>
+              <ul>
+                <li>Prof. Jonas Iversen</li>
+                <li>Dr. Samuel Okoye</li>
+                <li>Lina Duarte</li>
+              </ul>
+            </div>
+            <div class="label">Panel</div>
+          </article>
+
+          <article class="cell feature">
+            <span class="marker lg foam"></span>
+            <div class="time">11:30 — 12:30</div>
+            <div class="body">
+              <h3>Typographic Mutation Lab</h3>
+              <p>Manipulate live type systems that respond to pressure, time, and environmental input.</p>
+            </div>
+            <div class="label">Workshop</div>
+          </article>
+
+          <article class="cell">
+            <span class="marker cyan"></span>
+            <div class="time">12:30 — 13:30</div>
+            <div class="body">
+              <h3>Bio-reactive Food Station</h3>
+              <p>Menus adapt based on microbial density readings.</p>
+            </div>
+            <div class="label">Nutrient Break</div>
+          </article>
+
+          <article class="cell">
+            <span class="marker teal"></span>
+            <div class="time">13:30 — 14:15</div>
+            <div class="body">
+              <h3>Temporal Drift in Living Systems</h3>
+              <p>How microbial time operates differently from human time.</p>
+            </div>
+            <div class="label">Lecture</div>
+          </article>
+
+          <article class="cell">
+            <span class="marker foam"></span>
+            <div class="time">14:15 — 15:00</div>
+            <div class="body">
+              <h3>Synthetic Growth Exploration</h3>
+              <ul>
+                <li>Growth simulations</li>
+                <li>Microbial mapping</li>
+                <li>Responsive interfaces</li>
+              </ul>
+            </div>
+            <div class="label">Open Lab</div>
+          </article>
+
+          <article class="cell dish-cell" aria-hidden="true"></article>
+
+          <article class="cell feature">
+            <span class="marker lg sky"></span>
+            <div class="time">15:00 — 16:00</div>
+            <div class="body">
+              <h3>Designing Instability</h3>
+              <ul>
+                <li>Resist fixed outcomes</li>
+                <li>Evolve over time</li>
+                <li>Embrace unpredictability</li>
+              </ul>
+            </div>
+            <div class="label">Advanced Workshop</div>
+          </article>
+
+          <article class="cell">
+            <span class="marker aqua"></span>
+            <div class="time">16:00 — 16:30</div>
+            <div class="body">
+              <h3>System Recalibration</h3>
+              <p>Ambient sound + slow visual diffusion.</p>
+            </div>
+            <div class="label">Micro Break</div>
+          </article>
+
+          <article class="cell dish-cell" aria-hidden="true"></article>
+
+          <article class="cell feature">
+            <span class="marker lg cyan"></span>
+            <div class="time">16:30 — 17:30</div>
+            <div class="body">
+              <h3>Ethics of Mutation</h3>
+              <p>Who controls adaptive systems? What does authorship mean in a living system?</p>
+            </div>
+            <div class="label">Roundtable</div>
+          </article>
+
+          <article class="cell">
+            <span class="marker teal"></span>
+            <div class="time">17:30 — 18:30</div>
+            <div class="body">
+              <h3>Shared Microbial Map</h3>
+              <p>Participants contribute to a shared evolving microbial map.</p>
+            </div>
+            <div class="label">Collective Assembly</div>
+          </article>
+
+          <article class="cell dish-cell" aria-hidden="true"></article>
+
+          <article class="cell full">
+            <span class="marker xl cyan"></span>
+            <div class="time">18:30 — 20:00</div>
+            <div class="body">
+              <h3>Projection-based Installation — Typographic Systems Grow Across Surfaces</h3>
+              <p>Audience movement alters behavior. The room becomes a living organism.</p>
+            </div>
+            <div class="label">Evening Activation</div>
+          </article>
+
+        </div>
+      </div>
+
+      <footer class="ev-footer">
+        <div class="marker-cell"><span class="marker teal"></span></div>
+        <div class="info-cell">
+          <span class="k">Sample ID</span><span class="v">FF-MB-070926 · Growth Rate Variable</span>
+        </div>
+        <div class="marker-cell"><span class="marker outline"></span></div>
+        <div class="info-cell">
+          <span class="k">Status</span><span class="v">Mutation Active · Access Open</span>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+  <script>
+    const enterBtn = document.getElementById('enterBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const events   = document.getElementById('events');
+    const landing  = document.getElementById('landing');
+
+    function openEvents(){
+      events.classList.add('is-open');
+      events.setAttribute('aria-hidden','false');
+      landing.classList.add('is-hidden');
+    }
+    function closeEvents(){
+      events.classList.remove('is-open');
+      events.setAttribute('aria-hidden','true');
+      landing.classList.remove('is-hidden');
+    }
+    enterBtn.addEventListener('click', openEvents);
+    closeBtn.addEventListener('click', closeEvents);
+    document.addEventListener('keydown', e=>{
+      if(e.key === 'Escape') closeEvents();
+      if(e.key === 'Enter' && !events.classList.contains('is-open')) openEvents();
+    });
+  </script>
+</body>
+</html>
